@@ -107,7 +107,8 @@ struct query_parser : qi::grammar<Iterator, Predicate*(),
 
             //Distinguish between string literals from regular segments
             //(i.e. entity.type="entity")
-            quoted_string_g %= "'" >> +(char_ - "'") >> "'";
+            quoted_string_g %= "'" >> +(char_ - "'") >> "'"|
+                               '"' >> +(char_ - '"') >> '"';
 
             //Construct a new consumer. Simple values are constructed via FixedElementProvider.
             //Doubles have to have a dot, otherwise numbers are parsed as int (this affects type of Element)
