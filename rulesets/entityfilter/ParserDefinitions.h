@@ -135,7 +135,9 @@ struct query_parser : qi::grammar<Iterator, Predicate*(),
                     no_case[qi::string("true")[_b = true] | qi::string("false")[_b = false]]
                     [_val = new_<FixedElementProvider>(_b)]                                                             |
 
-                    function_g[_val = _1]                                           |
+                    "$eid:" >> int_[_val = new_<FixedElementProvider>(_1)]                                              |
+
+                    function_g[_val = _1]                                                                               |
 
                     segmented_expr_g[_val = boost::phoenix::bind(&ProviderFactory::createProviders, *m_factory, _1)];
 

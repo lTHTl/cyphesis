@@ -127,7 +127,7 @@ int main()
         TestQuery("entity.isVisible = false", {&b2}, {&b1});
 
         //test entity ID matching
-        TestQuery("entity.id=1", {&b1}, {&b2});
+        TestQuery("entity.id=$eid:1", {&b1}, {&b2});
 
         //test list match using "contains" operator
 
