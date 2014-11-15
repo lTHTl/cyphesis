@@ -47,6 +47,33 @@ static PyObject * match_entity(PyFilter * self, PyObject * py_entity)
     }
 }
 
+///\This is a utility method to make search_contains work recursively.
+///We consider every entity, check if it matches criteria, then form a list
+///of items that match the filter criteria. If an entity also contains something -
+///make a recursive call on the entities it contains
+///
+///@param iter - start iterator of contains property
+///@param iter_end - end iterator of contains property
+///@param filter - filter to match entities with
+///@param res - vector to fill up with matching entities
+void search_contains_util(std::set<LocatedEntity*>::iterator iter,
+                          std::set<LocatedEntity*>::iterator iter_end,
+                          EntityFilter::Filter* filter,
+                          std::vector<LocatedEntity*>& res)
+{
+    for (; iter != iter_end; ++iter) {
+        if ((**iter).isVisible() && filter->match(**iter)) {
+            res.push_back(*iter);
+            //Check if a given entity also contains other entities
+
+        }
+        if ((*iter)->m_contains && (*iter)->m_contains->size() > 0) {
+            search_contains_util((*iter)->m_contains->begin(),
+                                 (*iter)->m_contains->end(), filter, res);
+        }
+    }
+}
+
 ///\This method is used to search the "contains" property of an entity,
 ///returning a list of entities that match a given filter
 ///
@@ -55,7 +82,9 @@ static PyObject * match_entity(PyFilter * self, PyObject * py_entity)
 ///
 ///@param self - filter used to match entities
 ///@param py_entity - an entity whose "contains" property to search
-PyObject* search_contains(PyFilter* self, PyEntity* py_entity){
+///@return - PyObject list of entities matching criteria
+PyObject* search_contains(PyFilter* self, PyEntity* py_entity)
+{
 #ifndef NDEBUG
     if (self->m_filter == NULL) {
         PyErr_SetString(PyExc_AssertionError,
@@ -65,25 +94,21 @@ PyObject* search_contains(PyFilter* self, PyEntity* py_entity){
 #endif // NDEBUG
 
     //This function is often used on mind's own entity, in which case, the type is PyMind
-    if (!PyMind_Check(py_entity) && !PyEntity_Check(py_entity)){
+    if (!PyMind_Check(py_entity) && !PyEntity_Check(py_entity)) {
         return NULL;
     }
     LocatedEntity* ent = py_entity->m_entity.l;
 
-    if(!ent->m_contains){
+    if (!ent->m_contains) {
         return PyList_New(0);
     }
+    EntityFilter::Filter * filter = self->m_filter;
     //Perform actual search
     auto iter = ent->m_contains->begin();
     auto iter_end = ent->m_contains->end();
 
     std::vector<LocatedEntity*> res;
-
-    for (;iter != iter_end; ++iter){
-        if((**iter).isVisible() && self->m_filter->match(**iter)){
-            res.push_back(*iter);
-        }
-    }
+    search_contains_util(iter, iter_end, filter, res);
 
     //Create a python list an fill it with the entities we got
     //FIXME: the code below is reused in multiple places
@@ -93,7 +118,8 @@ PyObject* search_contains(PyFilter* self, PyEntity* py_entity){
     }
     std::vector<LocatedEntity*>::const_iterator Iend = res.end();
     int i = 0;
-    for (std::vector<LocatedEntity*>::const_iterator I = res.begin(); I != Iend; ++I, ++i) {
+    for (std::vector<LocatedEntity*>::const_iterator I = res.begin(); I != Iend;
+            ++I, ++i) {
         PyObject * thing = wrapEntity(*I);
         if (thing == NULL) {
             Py_DECREF(list);
