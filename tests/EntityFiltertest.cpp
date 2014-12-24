@@ -29,6 +29,10 @@
 #include <Atlas/Objects/Anonymous.h>
 
 #include <cassert>
+#include "./stubs/rulesets/stubIdProperty.h"
+#include "rulesets/DomainProperty.h"
+#include "./stubs/rulesets/stubDomainProperty.h"
+#include "./stubs/rulesets/stubDomain.h"
 
 using Atlas::Message::Element;
 using Atlas::Message::MapType;
@@ -622,56 +626,7 @@ int main()
 }
 
 //Stubs
-Domain * Domain::m_instance = new Domain();
 
-Domain::Domain() :
-        m_refCount(0)
-{
-}
-
-Domain::~Domain()
-{
-}
-
-float Domain::constrainHeight(LocatedEntity * parent,
-                              const Point3D & pos,
-                              const std::string & mode)
-{
-    return 0.f;
-}
-
-void Domain::tick(double t)
-{
-}
-IdProperty::IdProperty(const std::string & data) :
-        PropertyBase(per_ephem), m_data(data)
-{
-}
-
-int IdProperty::get(Atlas::Message::Element & e) const
-{
-    e = m_data;
-    return 0;
-}
-
-void IdProperty::set(const Atlas::Message::Element & e)
-{
-}
-
-void IdProperty::add(const std::string & key,
-                     Atlas::Message::MapType & ent) const
-{
-}
-
-void IdProperty::add(const std::string & key,
-                     const Atlas::Objects::Entity::RootEntity & ent) const
-{
-}
-
-IdProperty * IdProperty::copy() const
-{
-    return 0;
-}
 
 ContainsProperty::ContainsProperty(LocatedEntitySet & data) :
         PropertyBase(per_ephem), m_data(data)
@@ -730,6 +685,7 @@ void Router::addToMessage(Atlas::Message::MapType & omap) const
 void Router::addToEntity(const Atlas::Objects::Entity::RootEntity & ent) const
 {
 }
+
 BaseWorld*BaseWorld::m_instance = 0;
 BaseWorld::BaseWorld(LocatedEntity & gw) :
         m_gameWorld(gw)
