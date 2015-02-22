@@ -611,6 +611,25 @@ int main()
         assert(value.Int() == 0);
         //END OF contains_recursive TESTS
 
+
+        //TESTS for REGEX_MATCH
+
+        //types.boulder
+        segments.clear();
+        segments.push_back(ProviderFactory::Segment{"", "entity"});
+        segments.push_back(ProviderFactory::Segment{".", "type"});
+        auto criterion_provider = factory.createProviders(segments);
+
+        RegexMatchFunctionProvider regex_match = RegexMatchFunctionProvider("\w*r", criterion_provider);
+        regex_match.value(value, QueryContext{bl1});
+        assert(value.Int() == 1);
+
+        regex_match.value(value, QueryContext{b1});
+        assert(value.Int() == 1);
+
+
+
+        //END OF REGEX_MATCH TESTS
     }
 
 //    Clean up
