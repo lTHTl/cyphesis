@@ -147,7 +147,11 @@ struct query_parser : qi::grammar<Iterator, Predicate*(),
                     //contains_recursive function takes a consumer (contains_recursive is itself a consumer),
                                         //and a predicate as arguments.
                     (no_case[qi::lit("contains_recursive")] >> "(" >> consumer_g >> "," >> parenthesised_predicate_g >> ")")
-                            [_val = new_<ContainsRecursiveFunctionProvider>(_1, _2)];
+                            [_val = new_<ContainsRecursiveFunctionProvider>(_1, _2)] |
+                    //regex_match takes a string (regex) and a consumer whose value will be matched
+                            //as arguments
+                    (no_case[qi::lit("regex_match")] >> "(" >> quoted_string_g >> "," >> consumer_g >> ")")
+                            [_val = new_<RegexMatchFunctionProvider>(_1, _2)];
 
             //Construct comparer predicate, depending on which comparison operator we encounter.
             comparer_predicate_g =
